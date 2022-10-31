@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const mongoose = require("mongoose");
+const emailVerified = require('email-verifier-node');
 const eschema = mongoose.Schema;
 
 const eschemaUser = new eschema({
@@ -28,6 +29,9 @@ router.post("/agregarUser", (req, res) => {
     email: req.body.email,
     telefono: req.body.telefono,
   });
+
+
+
   nuevoUser.save((err) => {
     if (!err) {
       res.send("Usuario agregado correctamente");
