@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 const mongoose = require("mongoose");
 const emailVerified = require('email-verifier-node');
@@ -15,6 +16,7 @@ const eschemaUser = new eschema({
   nombre: String,
   email: String,
   telefono: String,
+  iduser: String,
 });
 
 const ModelUser = mongoose.model("user", eschemaUser);
@@ -28,18 +30,63 @@ router.post("/agregarUser", (req, res) => {
     nombre: req.body.nombre,
     email: req.body.email,
     telefono: req.body.telefono,
+    iduser: req.body.iduser,
   });
 
+  var emailVer = true;
 
+  emailVerified.verify_email(req.body.email)
+    .then( result => {
 
-  nuevoUser.save((err) => {
-    if (!err) {
-      res.send("Usuario agregado correctamente");
-    } else {
-      res.send("Error" + err);
-    }
-  });
+      if (result.is_verified != false) {
+        nuevoUser.save((err) => {
+          if (!err) {
+            res.send("Usuario agregado correctamente");
+          } else {
+            res.send("Error" + err);
+          }
+        })
+      } else {
+        res.send("El correo electrónico insertado no es correcto. Formato correcto: example@domain.com");
+      }
+      
+        console.log(result.format)
+        /* { 
+            "format":true,
+            "is_verified":false,
+            "accept_all":false,
+            "message":" The email account that you tried to reach does not exist.",
+            "errors":""
+        } */
+    })
+
 });
+
+//INSERTAR USUARIO DESDE jsonplaceholder
+router.post("/agregarUser/:iduser", (req, res) => {
+  const nuevoUserJ = new ModelUser();
+  let url = 'https://jsonplaceholder.typicode.com/users/' + req.params.iduser
+
+  axios.get(url).then(response => {
+    console.log(response.data.name);
+     nuevoUserJ.username = response.data.username
+     console.log(nuevoUserJ.username);
+     nuevoUserJ.nombre = response.data.name
+     console.log(nuevoUserJ.nombre);
+     nuevoUserJ.email = response.data.email
+     nuevoUserJ.telefono = response.data.phone
+     nuevoUserJ.iduser = response.data.id
+
+     nuevoUserJ.save((err) => {
+      if (!err) {
+        res.send("Usuario agregado correctamente");
+      } else {
+        res.send("Error" + err);
+      }
+    })
+   })
+});
+
 
 // LISTAR TODOS LOS USUARIOS
 router.get("/listarUser", (req, res) => {
@@ -52,14 +99,14 @@ router.get("/listarUser", (req, res) => {
 //#Edit and Update
 
 // OBTENER USUARIOS
-router.post("/obtenerUser", (req, res) => {
+router.get("/obtenerUser", (req, res) => {
   ModelUser.find({ iduser: req.body.iduser })
-    .then((docs) => {
-      res.json(docs);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  .then((docs) => {
+    res.json(docs);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 });
 
 // To Update The USER
@@ -91,3 +138,24 @@ router.post("/deleteUser", (req, res) => {
     }
   );
 });
+
+
+/*
+const axios = require("axios");
+
+let url = 'https://jsonplaceholder.typicode.com/users/2'
+
+let data = {
+  name: "Roberto Gomez",
+  username: "roberto",
+  email: "roberto@gmail.com",
+  phone: "123456"
+}
+
+
+
+axios.get(url).then(response => {
+ console.log(response.data.name);
+})
+
+*/

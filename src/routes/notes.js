@@ -39,13 +39,12 @@ router.get("/listarNotas", (req, res) => {
   ModelNota.find().then((docs) => {
     res.json(docs);
   });
-  //   res.end('Cargando Listado de Usuarios');
+    // res.end('Cargando Listado de Usuarios');
 });
 
 // OBTENER NOTA
 router.post("/obtenerNota", (req, res) => {
-  ModelNota.find({ idnota: req.body.idnota })
-    .then((docs) => {
+  ModelNota.find({ idnota: req.body.idnota }).then((docs) => {
       res.json(docs);
     })
     .catch((err) => {
@@ -55,7 +54,8 @@ router.post("/obtenerNota", (req, res) => {
 
 // UPDATE
 router.post("/editarNota", (req, res) => {
-  ModelUser.findOneAndUpdate(
+ 
+  ModelNota.findOneAndUpdate(
     { idnota: req.body.idnota },
     {
         title: req.body.title,
@@ -74,8 +74,10 @@ router.post("/editarNota", (req, res) => {
 
 // DELETE
 router.post("/deleteNota", (req, res) => {
-  ModelUser.findOneAndDelete({ idnota: req.body.idnota }).then((Nota, err) => {
+  ModelNota.findOneAndDelete({ idnota: req.body.idnota }).then((Nota, err) => {
     if (err) res.json(err);
     else res.json("Nota " + Nota + " Deleted Successfully");
   });
 });
+
+  
