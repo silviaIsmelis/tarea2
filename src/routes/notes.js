@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 
 const mongoose = require("mongoose");
 const eschema = mongoose.Schema;
@@ -32,6 +33,31 @@ router.post("/agregarNota", (req, res) => {
       res.send("Error" + err);
     }
   });
+});
+
+//INSERTAR NOTA DESDE jsonplaceholder
+router.post("/agregarNota/:idnota", (req, res) => {
+  const nuevaNotaJ = new ModelNota();
+  const date = new Date();
+  let url = 'https://jsonplaceholder.typicode.com/posts/' + req.params.idnota
+
+  axios.get(url).then(response => {
+
+    nuevaNotaJ.title = response.data.title
+    nuevaNotaJ.content = response.data.body
+    nuevaNotaJ.date = date
+    nuevaNotaJ.author = "Autor anonimo"
+    nuevaNotaJ.idnota = response.data.id
+
+     nuevaNotaJ.save((err) => {
+      if (!err) {
+        res.send("Nota agregada correctamente");
+      } else {
+        res.send("Error" + err);
+      }
+    })
+   })
+
 });
 
 // LISTAR TODAS LAS NOTAS
